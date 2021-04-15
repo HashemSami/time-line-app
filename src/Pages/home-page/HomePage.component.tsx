@@ -1,13 +1,13 @@
 import { FC } from "react";
 import { HomePageContainer, Item } from "./HomePage.styles";
 
-import TodoList from "../../components/todo/todo-list/TodoList.component";
+import TestGame from "../../components/test-game/TestGame.component";
 
 const HomePage: FC = () => {
   return (
     <HomePageContainer>
       <Item>
-        <TodoList />
+        <TestGame />
       </Item>
       {/* <Item>item2</Item>
       <Item>item3</Item>
