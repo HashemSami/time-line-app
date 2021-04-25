@@ -17,7 +17,11 @@ export const HomePageContainer = styled.div`
 `;
 
 export const Item = styled.div`
-  grid-column: col 3 / col 11;
+  grid-column: col 1 / col 13;
   /* grid-row: header; */
   background-color: #2d9a4c;
+
+  @media (min-width: 901px) {
+    grid-column: col 3 / col 11;
+  }
 `;

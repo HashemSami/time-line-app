@@ -2,64 +2,65 @@ import { FC, useRef, useEffect, useState, useCallback } from "react";
 
 import { CanvasContainer } from "./TestGame.styles";
 
+import { canvasCreator, BallActions } from "./ball";
+let ballSpeedX = 10;
+let ballSpeedY = 30;
+// console.log(ballSpeed);
+
 const TestGame: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const requestRef = useRef<any>();
 
   const [ballX, setBallX] = useState(75);
+  const [ballXSpeed, setBallXSpeed] = useState<number | 0>();
 
-  const updateAll = useCallback(
-    (current: HTMLCanvasElement) => {
-      setBallX((ballX) => ballX + 5);
-      console.log(ballX);
-      const ctx = current.getContext("2d");
+  const updateAll = useCallback((ball: BallActions) => {
+    ball.WithCollideY();
+    ball.WithCollideX();
+    ball.moveY();
+    ball.moveX();
+  }, []);
 
-      if (!ctx) {
-        return;
-      }
-
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, current.width, current.height);
-
-      ctx.fillStyle = "red";
-      ctx.beginPath();
-      ctx.arc(ballX, 100, 50, 0, Math.PI * 2, true);
-      ctx.fill();
-    },
-    [ballX]
-  );
+  const animate = (ball: BallActions) => {
+    updateAll(ball);
+    requestRef.current = requestAnimationFrame(() => animate(ball));
+  };
 
   useEffect(() => {
+    // const framesPerSecond = 30;
+    // const id = setInterval(() => updateAll(ball), 1000 / framesPerSecond);
+
+    const { current } = canvasRef;
+    if (!current || !requestRef.current) {
+      return;
+    }
+
+    const canvasRenderer = canvasCreator(current);
+    if (!canvasRenderer) {
+      return;
+    }
+    const ball = canvasRenderer.ball(10, 100);
+    ball.setSpeed(ballSpeedX, ballSpeedY);
+
+    requestRef.current = requestAnimationFrame(() => animate(ball));
+
+    return () => cancelAnimationFrame(requestRef.current);
+  }, []);
+
+  const updateMousePos = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     const { current } = canvasRef;
     if (!current) {
       return;
     }
-    const framesPerSecond = 30;
-    const id = setInterval(() => updateAll(current), 1000 / framesPerSecond);
-    console.log(current);
+    const rect = current.getBoundingClientRect();
+    const root = document.documentElement;
+    const mouseX = event.clientX - rect.left - root.scrollLeft;
+    // const mouseY = event.clientY -rect.top - root.scrollTop
 
-    return () => clearInterval(id);
-  }, [updateAll]);
+    // paddleX = mouseX;
+  };
 
-  // const updateAll = (current: HTMLCanvasElement) => {
-  //   setBallX((ballX) => ballX++);
-  //   const ctx = current.getContext("2d");
-
-  //   if (!ctx) {
-  //     return;
-  //   }
-
-  //   ctx.fillStyle = "black";
-  //   ctx.fillRect(0, 0, current.width, current.height);
-
-  //   ctx.fillStyle = "red";
-  //   ctx.beginPath();
-  //   ctx.arc(ballX, 100, 50, 0, Math.PI * 2, true);
-  //   ctx.fill();
-  // };
-
-  return (
-    <CanvasContainer width="800" height="600" ref={canvasRef}></CanvasContainer>
-  );
+  return <CanvasContainer onMouseMove={updateMousePos} width="800" height="600" ref={canvasRef}></CanvasContainer>;
 };
 
 export default TestGame;
