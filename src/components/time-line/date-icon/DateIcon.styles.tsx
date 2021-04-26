@@ -18,20 +18,28 @@ const getIconStyles = (props: IconStyleProps) => {
   }
 };
 
-export const DateIconContainer = styled.div`
+export const DateIconContainer = styled.div<IconStyleProps>`
   /* background-color: green; */
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 5rem;
+
+  svg {
+    width: 50px;
+    height: 50px;
+    ${getIconStyles}
+  }
 `;
-export const DateIcon = styled(Icon)<IconStyleProps>`
-  /* background-color: green; */
-  width: 50px;
-  height: 50px;
-  ${getIconStyles}
-`;
+// export const DateIcon = styled.div<IconStyleProps>`
+//   /* background-color: green; */
+//   svg {
+//     width: 50px;
+//     height: 50px;
+//     ${getIconStyles}
+//   }
+// `;
 
 export const DayNameDisplay = styled.div`
   position: absolute;

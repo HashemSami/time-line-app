@@ -3,7 +3,6 @@ import { HTMLAttributes, AllHTMLAttributes, DetailedHTMLProps, InputHTMLAttribut
 interface InputProps {
   element: "input";
   props: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
-  options: {};
 }
 
 export interface RedioProps {
