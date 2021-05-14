@@ -11,7 +11,7 @@ export interface RedioProps {
   options: { key: string; label: string; name: string; value: string }[];
 }
 
-interface SelectOrCheckboxProps {
+export interface SelectOrCheckboxProps {
   element: "select" | "checkbox";
   props: any;
   options: { key: string; label: string; value: string }[];
