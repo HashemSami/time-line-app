@@ -2,6 +2,7 @@ import { FC, useState, Fragment } from "react";
 import { DynamicFormContainer, FormGroup, FormGroupRadio, FormActions, FormTitle } from "./DynamicForm.styles";
 
 import { FormModel, RedioProps, SelectOrCheckboxProps } from "../../models";
+import { type } from "node:os";
 
 interface DynamicFormProps {
   title: string;
@@ -14,15 +15,44 @@ interface DynamicFormProps {
 //   return form as
 // }
 
-const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSubmit, getOnChangeValues }) => {
-  const [formValues, setFormValues] = useState<{ [key: string]: string | number } | null>({});
+interface formValuesProps {
+  type: "single";
+  [key: string]: string | number;
+}
 
-  const handleOnChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, key: string) => {
+interface formMultiValuesProps {
+  type: "multiple";
+  [key: string]: string[];
+}
+
+const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSubmit, getOnChangeValues }) => {
+  const [formValues, setFormValues] = useState<formValuesProps | formMultiValuesProps | null>({});
+
+  const handleOnChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, key: string, type: "single" | "multiple" = "single") => {
     // console.log(e.target.value);
 
-    setFormValues(state => {
-      return { ...state, [key]: value };
-    });
+    switch (type) {
+      case "single":
+        setFormValues(state => {
+          return { ...state, [key]: value };
+        });
+        break;
+
+      case "multiple":
+        if (!formValues) {
+          return;
+        }
+
+        const found = formValues[key] ? (formValues[key] as string[]).find(d => d === value) : false;
+
+        if (!found) {
+          setFormValues(state => {
+            return { ...state, [key]: [value, ...formValues[key]] };
+          });
+        }
+
+        break;
+    }
 
     if (getOnChangeValues) {
       getOnChangeValues(formValues);
@@ -87,7 +117,7 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
             }
             return (
               <Fragment key={`cfr${key}`}>
-                <input {...props} type={element} key={key} checked={checked} value={value} onChange={e => handleOnChange(e, elementKey)} />
+                <input {...props} type={element} key={key} checked={checked} value={value} onChange={e => handleOnChange(e, elementKey, "multiple")} />
                 <label key={`ll${key}`}>{label}</label>
               </Fragment>
             );
