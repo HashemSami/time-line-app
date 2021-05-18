@@ -19,14 +19,8 @@ interface formValuesProps {
   [key: string]: string | number | string[];
 }
 
-interface formMultiValuesProps {
-  type: "multiple";
-
-  [key: string]: string;
-}
-
 const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSubmit, getOnChangeValues }) => {
-  const [formValues, setFormValues] = useState<formValuesProps | null>();
+  const [formValues, setFormValues] = useState<formValuesProps | undefined>({});
 
   const handleOnChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, key: string, type: "single" | "multiple" = "single") => {
     // console.log(e.target.value);
@@ -43,20 +37,23 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
           return;
         }
 
-        if (Array.isArray(formValues[key])) {
-          const found = (formValues[key] as string[]).find(d => d === value);
+        const found = (formValues[key] as string[]).find(d => d === value);
 
-          if (!found) {
-            setFormValues(state => {
-              if (!state) {
-                return;
-              }
-              return { ...state, [key]: [value, ...(state[key] as string[])] };
-            });
-          }
+        if (!found) {
+          const data = formValues[key] ? [value, ...(formValues[key] as string[])] : [value];
+
+          setFormValues(state => {
+            if (!state) {
+              return;
+            }
+            return { ...state, [key]: data };
+          });
         } else {
           setFormValues(state => {
-            return { ...state, [key]: [value] };
+            if (!state) {
+              return;
+            }
+            return { ...state, [key]: [...(state[key] as string[]).filter(item => value !== item)] };
           });
         }
         break;
@@ -121,9 +118,11 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
         case "checkbox":
           input = (modelElement as SelectOrCheckboxProps).options.map(({ key, label, value }) => {
             let checked = false;
-            if (typeof stateValue == "string" && stateValue.length > 0) {
+
+            if (stateValue && typeof stateValue !== "string" && typeof stateValue !== "number" && stateValue.length > 0) {
               checked = stateValue.indexOf(value) > -1 ? true : false;
             }
+
             return (
               <Fragment key={`cfr${key}`}>
                 <input {...props} type={element} key={key} checked={checked} value={value} onChange={e => handleOnChange(e, elementKey, "multiple")} />
