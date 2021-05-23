@@ -2,18 +2,18 @@ import { HTMLAttributes, AllHTMLAttributes, DetailedHTMLProps, InputHTMLAttribut
 
 interface InputProps {
   element: "input";
-  props: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
+  props: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
 export interface RedioProps {
   element: "radio";
-  props: any;
+  props: React.InputHTMLAttributes<HTMLInputElement>;
   options: { key: string; label: string; name: string; value: string }[];
 }
 
 export interface SelectOrCheckboxProps {
   element: "select" | "checkbox";
-  props: any;
+  props: React.OptionHTMLAttributes<HTMLOptionElement> | React.InputHTMLAttributes<HTMLInputElement>;
   options: { key: string; label: string; value: string }[];
 }
 

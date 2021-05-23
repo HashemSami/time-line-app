@@ -2,7 +2,6 @@ import { FC, useState, Fragment } from "react";
 import { DynamicFormContainer, FormGroup, FormGroupRadio, FormActions, FormTitle } from "./DynamicForm.styles";
 
 import { FormModel, RedioProps, SelectOrCheckboxProps } from "../../models";
-import { type } from "node:os";
 
 interface DynamicFormProps {
   title: string;
@@ -15,6 +14,10 @@ interface DynamicFormProps {
 //   return form as
 // }
 
+type InputHTML = React.InputHTMLAttributes<HTMLInputElement>;
+
+type OptionHTML = React.OptionHTMLAttributes<HTMLOptionElement>;
+
 interface formValuesProps {
   [key: string]: string | number | string[];
 }
@@ -22,45 +25,64 @@ interface formValuesProps {
 const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSubmit, getOnChangeValues }) => {
   const [formValues, setFormValues] = useState<formValuesProps | undefined>({});
 
-  const handleOnChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, key: string, type: "single" | "multiple" = "single") => {
+  // const asyncSetState = (values:formValuesProps, callbackFunction) => setFormValues(values, callbackFunction)
+
+  const handleOnChange = async ({ target: { value } }: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, key: string, type: "single" | "multiple" = "single") => {
     // console.log(e.target.value);
+    const updatestate = () => {
+      return new Promise((resolve, reject) => {
+        switch (type) {
+          case "single":
+            setFormValues(state => {
+              return { ...state, [key]: value };
+            });
+            break;
 
-    switch (type) {
-      case "single":
-        setFormValues(state => {
-          return { ...state, [key]: value };
-        });
-        break;
-
-      case "multiple":
-        if (!formValues) {
-          return;
-        }
-
-        const found = (formValues[key] as string[]).find(d => d === value);
-
-        if (!found) {
-          const data = formValues[key] ? [value, ...(formValues[key] as string[])] : [value];
-
-          setFormValues(state => {
-            if (!state) {
+          case "multiple":
+            if (!formValues) {
               return;
             }
-            return { ...state, [key]: data };
-          });
-        } else {
-          setFormValues(state => {
-            if (!state) {
-              return;
-            }
-            return { ...state, [key]: [...(state[key] as string[]).filter(item => value !== item)] };
-          });
-        }
-        break;
-    }
 
-    if (getOnChangeValues) {
-      getOnChangeValues(formValues);
+            if (formValues[key]) {
+              const found = (formValues[key] as string[]).find(d => d === value);
+
+              if (!found) {
+                // const data = formValues[key] ? [value, ...(formValues[key] as string[])] : [value];
+
+                setFormValues(state => {
+                  if (!state) {
+                    return;
+                  }
+                  return { ...state, [key]: [value, ...(state[key] as string[])] };
+                });
+              } else {
+                setFormValues(state => {
+                  if (!state) {
+                    return;
+                  }
+                  return { ...state, [key]: [...(state[key] as string[]).filter(item => value !== item)] };
+                });
+              }
+            } else {
+              setFormValues(state => {
+                if (!state) {
+                  return;
+                }
+                return { ...state, [key]: [value] };
+              });
+            }
+            break;
+        }
+
+        resolve(formValues);
+      });
+    };
+
+    const stateValues = await updatestate();
+
+    // add the form values to the parent onChange function
+    if (getOnChangeValues && stateValues) {
+      getOnChangeValues(stateValues);
     }
   };
 
@@ -68,10 +90,10 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
     if (!formValues) {
       return;
     }
-    console.log(formValues);
+    // console.log(formValues);
     const formUI = model.map(modelElement => {
       const { key, label, element, props } = modelElement;
-      const { type = "text" } = props;
+      // const { type = "text" } = props;
       const elementKey = key;
       const target = key;
 
@@ -81,14 +103,14 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
 
       switch (element) {
         case "input":
-          input = <input key={key} {...props} value={stateValue} onChange={e => handleOnChange(e, key)} />;
+          input = <input key={key} {...(props as InputHTML)} value={stateValue} onChange={e => handleOnChange(e, key)} />;
           break;
         case "radio":
           input = (modelElement as RedioProps).options.map(({ key, label, name, value }) => {
             const checked = value === stateValue;
             return (
               <Fragment key={`fr${key}`}>
-                <input key={key} {...props} type={element} checked={checked} name={name} value={value} onChange={e => handleOnChange(e, name)} />
+                <input key={key} {...(props as InputHTML)} type={element} checked={checked} name={name} value={value} onChange={e => handleOnChange(e, name)} />
                 <label key={`ll${key}`}>{label}</label>
               </Fragment>
             );
@@ -102,7 +124,7 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
 
             return (
               <Fragment>
-                <option {...props} key={key} value={value}>
+                <option {...(props as OptionHTML)} key={key} value={value}>
                   {value}
                 </option>
               </Fragment>
@@ -125,7 +147,7 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
 
             return (
               <Fragment key={`cfr${key}`}>
-                <input {...props} type={element} key={key} checked={checked} value={value} onChange={e => handleOnChange(e, elementKey, "multiple")} />
+                <input {...(props as InputHTML)} type={element} key={key} checked={checked} value={value} onChange={e => handleOnChange(e, elementKey, "multiple")} />
                 <label key={`ll${key}`}>{label}</label>
               </Fragment>
             );
@@ -146,6 +168,7 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
     return formUI;
   };
 
+  // send form valus to parent on submit
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit(formValues);
@@ -170,3 +193,49 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
 };
 
 export default DynamicForm;
+
+// <DynamicForm
+// title="Registeration"
+// model={[
+//   { key: "name", label: "Name", element: "input", props: { required: true } },
+//   { key: "age", label: "Age", element: "input", props: { type: "number" } },
+//   { key: "rating", label: "Rating", element: "input", props: { type: "number", min: 0, max: 5 } },
+//   { key: "qualification", label: "Qualification", element: "input", props: {} },
+//   {
+//     key: "gender",
+//     label: "Gender",
+//     element: "radio",
+//     options: [
+//       { key: "male", label: "Male", name: "gender", value: "male" },
+//       { key: "female", label: "Female", name: "gender", value: "female" },
+//     ],
+//     props: {},
+//   },
+//   {
+//     key: "city",
+//     label: "city",
+//     element: "select",
+//     options: [
+//       { key: "jeddah", label: "Jeddah", value: "jeddah" },
+//       { key: "khobar", label: "Khobar", value: "khobar" },
+//       { key: "abha", label: "Abha", value: "abha" },
+//     ],
+//     props: {},
+//   },
+//   {
+//     key: "skills",
+//     label: "Skills",
+//     element: "checkbox",
+//     options: [
+//       { key: "react", label: "React", value: "react" },
+//       { key: "angular", label: "Angular", value: "angular" },
+//       { key: "vue", label: "Vue", value: "vue" },
+//     ],
+//     props: {},
+//   },
+// ]}
+// onSubmit={model => {
+//   onSubmit(model);
+// }}
+// getOnChangeValues={values => han(values)}
+// />

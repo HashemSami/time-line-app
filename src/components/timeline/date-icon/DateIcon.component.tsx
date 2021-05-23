@@ -7,11 +7,12 @@ interface DateIconViewProps {
   dayShortSrting: string;
   dayNumber: number;
   isCurrentDay: boolean;
+  isWeekend: boolean;
 }
 
-const DateIconView: FC<DateIconViewProps> = ({ dayShortSrting, dayNumber, isCurrentDay }) => {
+const DateIconView: FC<DateIconViewProps> = ({ dayShortSrting, dayNumber, isCurrentDay, isWeekend }) => {
   return (
-    <DateIconContainer isCurrentDay={isCurrentDay}>
+    <DateIconContainer isCurrentDay={isCurrentDay} isWeekend={isWeekend}>
       <Icon />
       <DayNameDisplay>{dayShortSrting}</DayNameDisplay>
       <DayNumberDisplay>{dayNumber}</DayNumberDisplay>

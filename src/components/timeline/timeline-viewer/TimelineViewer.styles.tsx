@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const TimeLineContainer = styled.div`
+export const TimelineContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(12, [col] 1fr);
   grid-auto-rows: minmax(100px, auto);

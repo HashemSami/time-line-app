@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 
-import timeLineSettingsReducer from "./timeLineSettingsReducer";
+import timeLineSettingsReducer from "./timelineSettingsReducer";
 
 const reducers = combineReducers({
   timeLineSettings: timeLineSettingsReducer,

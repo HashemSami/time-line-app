@@ -5,6 +5,10 @@ import { DayObject } from "../../../models";
 
 dayjs.extend(localeData);
 
+interface DaysObjectOptions {
+  weekends: number[];
+}
+
 export const months = dayjs.months();
 
 export const weekDays = dayjs.weekdays();
@@ -39,9 +43,16 @@ const getNextMonth = (dayjsContext: dayjs.Dayjs) => dayjs(dayjsContext).add(1, "
 
 const getPrevMonth = (dayjsContext: dayjs.Dayjs) => dayjs(dayjsContext).subtract(1, "month");
 
-const getDaysObject = (dayjsContext: dayjs.Dayjs) => {
+const getDaysObject = (dayjsContext: dayjs.Dayjs, options?: DaysObjectOptions) => {
   const numberOfDaysInMonth = getNumberOfDaysInMonth(dayjsContext);
   const todayContext = dayjs();
+  let currentWeekends = [0, 1];
+
+  if (options) {
+    const { weekends } = options;
+    currentWeekends = weekends;
+    console.log(weekends);
+  }
 
   const daysObject: DayObject = {};
 
@@ -55,6 +66,7 @@ const getDaysObject = (dayjsContext: dayjs.Dayjs) => {
 
     const dayObject = {
       [`${monthNumber + 1}-${monthDay}-${year}`]: {
+        dayIndex: weekDay,
         dayNumber: monthDay,
         dayValue: date.valueOf(),
         dayString: weekDays[weekDay],
@@ -62,6 +74,7 @@ const getDaysObject = (dayjsContext: dayjs.Dayjs) => {
         monthName,
         year,
         isCurrentDay: date.isSame(todayContext),
+        isWeekend: currentWeekends.indexOf(weekDay) > -1,
       },
     };
     Object.assign(daysObject, dayObject);
@@ -102,7 +115,8 @@ export const DateFunctions = (dayjsContextParam?: dayjs.Dayjs) => {
   };
 
   return {
-    getDaysObject: () => getDaysObject(getDayjsContext()),
+    // getters
+    getDaysObject: (options?: DaysObjectOptions) => getDaysObject(getDayjsContext(), options),
     getDayjsContext: () => getDayjsContext(),
     getYear: () => getYear(getDayjsContext()),
     getMonth: () => getMonth(getDayjsContext()),
@@ -112,6 +126,7 @@ export const DateFunctions = (dayjsContextParam?: dayjs.Dayjs) => {
     getFirstDayOfTheMonth: () => getFirstDayOfTheMonth(getDayjsContext()),
     getNextMonth: () => getNextMonth(getDayjsContext()),
     getPrevMonth: () => getPrevMonth(getDayjsContext()),
+    // setters
     setDateContextByMonthNumber: (monthNumber: number) => setDateContextByMonthNumber(getDayjsContext(), setDayjsContext, monthNumber),
     setDateContextByYearNumber: (yearNumber: number) => setDateContextByYearNumber(getDayjsContext(), setDayjsContext, yearNumber),
   };

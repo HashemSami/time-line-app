@@ -3,6 +3,7 @@ import { ReactComponent as Icon } from "../../../icons/date-icon2.svg";
 
 interface IconStyleProps {
   isCurrentDay: boolean;
+  isWeekend: boolean;
 }
 
 const isCurrentDayStyles = css`
@@ -11,10 +12,19 @@ const isCurrentDayStyles = css`
   }
 `;
 
+const isWeekendStyles = css`
+  path {
+    fill: green;
+  }
+`;
+
 const getIconStyles = (props: IconStyleProps) => {
   if (props.isCurrentDay) {
-    console.log(props.isCurrentDay);
+    // console.log(props.isCurrentDay);
     return isCurrentDayStyles;
+  }
+  if (props.isWeekend) {
+    return isWeekendStyles;
   }
 };
 

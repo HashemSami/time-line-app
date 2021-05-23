@@ -1,56 +1,48 @@
 import { FC } from "react";
 import { HomePageContainer, Item } from "./HomePage.styles";
 
-import TimeLineViewer from "../../components/time-line/time-line-viewer/TimeLineViewer.component";
+import { useActions } from "../../hooks/useActions";
+
+import TimelineViewer from "../../components/timeline/timeline-viewer/TimelineViewer.component";
 import DynamicForm from "../../components/dynamic-form/DynamicForm.component";
 
 const HomePage: FC = () => {
-  const onSubmit = (model: any) => {
+  const { setWeekendDays } = useActions();
+
+  const onSubmit = (model: { weekends: string[]; name: string }) => {
+    const weekendsNumbers = model.weekends.map(d => parseInt(d));
+    setWeekendDays(weekendsNumbers);
     console.log(model);
   };
 
-  const han = (e: any) => {
-    console.log(e);
+  const handleSttingsOnChange = (values: { weekends: string[]; name: string }) => {
+    if (!values) {
+      return;
+    }
+    // const weekendsNumbers = values.weekends.map(d => parseInt(d));
+    // setWeekendDays(weekendsNumbers);
+
+    console.log(values);
   };
   return (
     <HomePageContainer>
       <Item>
         <DynamicForm
-          title="Registeration"
+          title="Settings"
           model={[
             { key: "name", label: "Name", element: "input", props: { required: true } },
-            { key: "age", label: "Age", element: "input", props: { type: "number" } },
-            { key: "rating", label: "Rating", element: "input", props: { type: "number", min: 0, max: 5 } },
-            { key: "qualification", label: "Qualification", element: "input", props: {} },
             {
-              key: "gender",
-              label: "Gender",
-              element: "radio",
-              options: [
-                { key: "male", label: "Male", name: "gender", value: "male" },
-                { key: "female", label: "Female", name: "gender", value: "female" },
-              ],
-              props: {},
-            },
-            {
-              key: "city",
-              label: "city",
-              element: "select",
-              options: [
-                { key: "jeddah", label: "Jeddah", value: "jeddah" },
-                { key: "khobar", label: "Khobar", value: "khobar" },
-                { key: "abha", label: "Abha", value: "abha" },
-              ],
-              props: {},
-            },
-            {
-              key: "skills",
-              label: "Skills",
+              key: "weekends",
+              label: "Weekends",
               element: "checkbox",
               options: [
-                { key: "react", label: "React", value: "react" },
-                { key: "angular", label: "Angular", value: "angular" },
-                { key: "vue", label: "Vue", value: "vue" },
+                { key: "sunday", label: "Sunday", value: "0" },
+                { key: "monday", label: "Monday", value: "1" },
+                { key: "tuseday", label: "Tuseday", value: "2" },
+                { key: "wednesday", label: "Wednesday", value: "3" },
+                { key: "thursday", label: "Thursday", value: "4" },
+                { key: "friday", label: "Friday", value: "5" },
+                { key: "saturday", label: "Saturday", value: "6" },
               ],
               props: {},
             },
@@ -58,11 +50,11 @@ const HomePage: FC = () => {
           onSubmit={model => {
             onSubmit(model);
           }}
-          getOnChangeValues={values => han(values)}
+          getOnChangeValues={values => handleSttingsOnChange(values)}
         />
       </Item>
       <Item>
-        <TimeLineViewer />
+        <TimelineViewer />
       </Item>
       {/* <Item>item2</Item>
       <Item>item3</Item>

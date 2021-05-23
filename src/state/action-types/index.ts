@@ -1,1 +1,1 @@
-export * from "./timeLineSettingsActionTypes";
+export { TimelineSettingsActionTypes } from "./timelineSettingsActionTypes";
