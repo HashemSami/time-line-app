@@ -44,6 +44,8 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
             }
 
             if (formValues[key]) {
+              // if the property exist
+              // look for the current value in our state
               const found = (formValues[key] as string[]).find(d => d === value);
 
               if (!found) {
@@ -64,6 +66,8 @@ const DynamicForm: FC<DynamicFormProps> = ({ title = "Dynamic Form", model, onSu
                 });
               }
             } else {
+              // if the hole property does not exist
+              // create a new property with array value
               setFormValues(state => {
                 if (!state) {
                   return;
