@@ -13,6 +13,7 @@ interface DateViewerProps {
   weekends: number[];
 }
 
+// this component for rendering the month days
 const DateViewer: FC<DateViewerProps> = ({ month, monthNumber, weekends }) => {
   const dateContext = DateFunctions();
   // dateContext.setDateContextByYearNumber(2019);
