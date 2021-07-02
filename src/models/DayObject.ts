@@ -11,3 +11,7 @@ export interface DayObject {
     isWeekend: boolean;
   };
 }
+
+export interface TimelineData {
+  [year: string]: { [month: string]: DayObject };
+}

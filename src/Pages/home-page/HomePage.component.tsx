@@ -5,17 +5,21 @@ import { useActions } from "../../hooks/useActions";
 
 import TimelineViewer from "../../components/timeline/timeline-viewer/TimelineViewer.component";
 import DynamicForm from "../../components/dynamic-form/DynamicForm.component";
+import TimelineWindow from "../../components/timeline-window/TimelineWindow.component";
 
 const HomePage: FC = () => {
   const { setWeekendDays } = useActions();
 
   const onSubmit = (model: { weekends: string[]; name: string }) => {
-    const weekendsNumbers = model.weekends.map(d => parseInt(d));
+    const weekendsNumbers = model.weekends.map((d) => parseInt(d));
     setWeekendDays(weekendsNumbers);
     console.log(model);
   };
 
-  const handleSttingsOnChange = (values: { weekends: string[]; name: string }) => {
+  const handleSttingsOnChange = (values: {
+    weekends: string[];
+    name: string;
+  }) => {
     if (!values) {
       return;
     }
@@ -30,7 +34,12 @@ const HomePage: FC = () => {
         <DynamicForm
           title="Settings"
           model={[
-            { key: "name", label: "Name", element: "input", props: { required: true } },
+            {
+              key: "name",
+              label: "Name",
+              element: "input",
+              props: { required: true },
+            },
             {
               key: "weekends",
               label: "Weekends",
@@ -47,10 +56,19 @@ const HomePage: FC = () => {
               props: {},
             },
           ]}
-          onSubmit={model => {
+          onSubmit={(model) => {
             onSubmit(model);
           }}
-          getOnChangeValues={values => handleSttingsOnChange(values)}
+          getOnChangeValues={(values) => handleSttingsOnChange(values)}
+        />
+      </Item>
+      <Item>
+        <TimelineWindow
+          width={700}
+          height={500}
+          updateFunction={(func) => {
+            // setBarC(func);s
+          }}
         />
       </Item>
       <Item>

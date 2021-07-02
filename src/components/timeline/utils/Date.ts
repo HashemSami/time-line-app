@@ -19,31 +19,47 @@ const getYear = (dayjsContext: dayjs.Dayjs) => dayjsContext.format("YYYY");
 
 const getMonth = (dayjsContext: dayjs.Dayjs) => dayjsContext.format("MMMM");
 
-const getNumberOfDaysInMonth = (dayjsContext: dayjs.Dayjs) => dayjsContext.daysInMonth();
+const getNumberOfDaysInMonth = (dayjsContext: dayjs.Dayjs) =>
+  dayjsContext.daysInMonth();
 
 const getCurrentDate = (dayjsContext: dayjs.Dayjs) => dayjsContext.get("date");
 
-const getCurrentDay = (dayjsContext: dayjs.Dayjs) => parseInt(dayjsContext.format("D"));
+const getCurrentDay = (dayjsContext: dayjs.Dayjs) =>
+  parseInt(dayjsContext.format("D"));
 
-const getFirstDayOfTheMonth = (dayjsContext: dayjs.Dayjs) => parseInt(dayjs(dayjsContext).startOf("month").format("d"));
+const getFirstDayOfTheMonth = (dayjsContext: dayjs.Dayjs) =>
+  parseInt(dayjs(dayjsContext).startOf("month").format("d"));
 
-const setDateContextByMonthNumber = (dayjsContext: dayjs.Dayjs, setDayjsContext: (context: dayjs.Dayjs) => void, monthNumber: number) => {
+const setDateContextByMonthNumber = (
+  dayjsContext: dayjs.Dayjs,
+  setDayjsContext: (context: dayjs.Dayjs) => void,
+  monthNumber: number
+) => {
   // return (monthNumber: number) => {
   setDayjsContext(dayjs(dayjsContext).set("month", monthNumber));
   // };
 };
 
-const setDateContextByYearNumber = (dayjsContext: dayjs.Dayjs, setDayjsContext: (context: dayjs.Dayjs) => void, yearNumber: number) => {
+const setDateContextByYearNumber = (
+  dayjsContext: dayjs.Dayjs,
+  setDayjsContext: (context: dayjs.Dayjs) => void,
+  yearNumber: number
+) => {
   // return (yearNumber: number) => {
   setDayjsContext(dayjs(dayjsContext).set("year", yearNumber));
   // };
 };
 
-const getNextMonth = (dayjsContext: dayjs.Dayjs) => dayjs(dayjsContext).add(1, "month");
+const getNextMonth = (dayjsContext: dayjs.Dayjs) =>
+  dayjs(dayjsContext).add(1, "month");
 
-const getPrevMonth = (dayjsContext: dayjs.Dayjs) => dayjs(dayjsContext).subtract(1, "month");
+const getPrevMonth = (dayjsContext: dayjs.Dayjs) =>
+  dayjs(dayjsContext).subtract(1, "month");
 
-const getDaysObject = (dayjsContext: dayjs.Dayjs, options?: DaysObjectOptions) => {
+const getDaysObject = (
+  dayjsContext: dayjs.Dayjs,
+  options?: DaysObjectOptions
+) => {
   const numberOfDaysInMonth = getNumberOfDaysInMonth(dayjsContext);
   const todayContext = dayjs();
   let currentWeekends = [0, 1];
@@ -51,7 +67,7 @@ const getDaysObject = (dayjsContext: dayjs.Dayjs, options?: DaysObjectOptions) =
   if (options) {
     const { weekends } = options;
     currentWeekends = weekends;
-    console.log(weekends);
+    // console.log(weekends);
   }
 
   const daysObject: DayObject = {};
@@ -116,7 +132,8 @@ export const DateFunctions = (dayjsContextParam?: dayjs.Dayjs) => {
 
   return {
     // getters
-    getDaysObject: (options?: DaysObjectOptions) => getDaysObject(getDayjsContext(), options),
+    getDaysObject: (options?: DaysObjectOptions) =>
+      getDaysObject(getDayjsContext(), options),
     getDayjsContext: () => getDayjsContext(),
     getYear: () => getYear(getDayjsContext()),
     getMonth: () => getMonth(getDayjsContext()),
@@ -127,8 +144,18 @@ export const DateFunctions = (dayjsContextParam?: dayjs.Dayjs) => {
     getNextMonth: () => getNextMonth(getDayjsContext()),
     getPrevMonth: () => getPrevMonth(getDayjsContext()),
     // setters
-    setDateContextByMonthNumber: (monthNumber: number) => setDateContextByMonthNumber(getDayjsContext(), setDayjsContext, monthNumber),
-    setDateContextByYearNumber: (yearNumber: number) => setDateContextByYearNumber(getDayjsContext(), setDayjsContext, yearNumber),
+    setDateContextByMonthNumber: (monthNumber: number) =>
+      setDateContextByMonthNumber(
+        getDayjsContext(),
+        setDayjsContext,
+        monthNumber
+      ),
+    setDateContextByYearNumber: (yearNumber: number) =>
+      setDateContextByYearNumber(
+        getDayjsContext(),
+        setDayjsContext,
+        yearNumber
+      ),
   };
 };
 
