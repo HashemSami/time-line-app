@@ -6,7 +6,8 @@ import {
   generateBarYAxis,
   getMinValue,
   timeScale,
-} from "../../utils/d3Utils";
+  d3Zoom,
+} from "../../../../services/d3";
 import { ChartOptions } from "../models";
 import { TimelineData } from "../../../../models";
 import { Data } from "../../../dynamic-form/utils/dataEx";
@@ -17,6 +18,8 @@ export const timeLineWindow = (
   chartOptions: ChartOptions
 ) => {
   const { width, height, margin } = chartOptions;
+
+  // console.log(width, height);
 
   const innerMargin = { top: 20, bottom: 20, right: 20, left: 20 };
 
@@ -30,14 +33,44 @@ export const timeLineWindow = (
 
   const xAxisSvg = svg
     .append("g")
-    .attr(
-      "transform",
-      `translate(0, ${bottomWindowLocation + innerMargin.top})`
-    );
+    .attr("transform", `translate(0, ${height + margin.top})`);
 
   const yAxisSvg = svg.append("g");
 
   // const tip = generateValueTip(svg, -10);
+
+  // Add a clipPath: everything out of this area won't be drawn.
+  const clip = svg
+    .append("defs")
+    .append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("x", 0)
+    .attr("y", 0);
+
+  // Create the scatter variable: where both the circles and the brush take place
+  // const rects = svg.append("g").attr("clip-path", "url(#clip)");
+
+  const zoom = d3Zoom()
+    .scaleExtent([0.5, 20]) // This control how much you can unzoom (x0.5) and zoom (x20)
+    .extent([
+      [0, 0],
+      [width, height],
+    ]);
+
+  // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
+  svg
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
+
+  const rectWidth = width / 365;
 
   return {
     updateData: (
@@ -51,10 +84,9 @@ export const timeLineWindow = (
       // xAxis
       // will also do the scaling for the x values (the fields names)
 
-      const x = timeScale([minDate, maxDate], [0, innerWidth]);
+      const x = timeScale([minDate, maxDate], [0, width]);
 
-      const xAxisCall = generateBarXAxis()(x);
-
+      const xAxisCall = generateBarXAxis();
       // xAxisSvg.call(xAxisCall);
 
       // ------------------------------------------------------------
@@ -63,9 +95,9 @@ export const timeLineWindow = (
       // const min = getMinValue(newData);
       // // here we will set the scale of our bar chart to fit all the data into
       // // our visulaization
-      // const y = linearScale([min ? min * 0.95 : 0, max ? max + 10 : 1000], [height, 0]);
+      const y = bandScale(["date", "members"], [height, 0]);
 
-      // const yAxisCall = generateBarYAxis(y);
+      const yAxisCall = generateBarYAxis();
       // we need to call our yAxis generator on our svg
       // but we need to append them to a group to make both axis
       // show on the screen
@@ -78,6 +110,7 @@ export const timeLineWindow = (
       // after adding the data to the SVG, we can save it in a variable.
 
       // DATA JOIN
+      const currentDate = new Date();
 
       const daysArray: {
         dayIndex: number;
@@ -92,15 +125,20 @@ export const timeLineWindow = (
         jsDate: Date;
       }[] = [];
 
-      const viewData = Object.keys(newData["2021"]).forEach(monthNum => {
+      // TODO: implement one for loop to loop on the hole year
+      // instead of the nested for loop here
+      Object.keys(newData["2021"]).forEach((monthNum) => {
         const days = newData["2021"][monthNum];
-        Object.keys(days).forEach(d => {
+        Object.keys(days).forEach((d) => {
           daysArray.push(days[d]);
         });
       });
 
-      console.log(viewData);
-      const rects = svg.selectAll("rect").data(daysArray);
+      const rects = svg
+        .append("g")
+        .attr("clip-path", "url(#clip)")
+        .selectAll("rect")
+        .data(daysArray);
       // once you set your data using the data() method, you can have access to all the data
       // and the data eteration number in inside the attributes setters as a function
       // console.log(x("Hashem"));
@@ -117,14 +155,23 @@ export const timeLineWindow = (
 
       // UPDATE
 
-      xAxisSvg.transition().duration(500).call(xAxisCall);
-      // yAxisSvg.transition().duration(500).call(yAxisCall);
+      xAxisSvg.transition().duration(500).call(xAxisCall(x));
+      yAxisSvg.transition().duration(500).call(yAxisCall(y));
 
       rects
         .transition()
         .duration(500)
+        .attr("y", 50)
+        .attr("height", (data, i) => {
+          const xVal = y("date");
+          return xVal ? xVal : null;
+        })
         .attr("x", (data, i) => {
           const xVal = x(data.jsDate);
+          return xVal ? xVal : null;
+        })
+        .attr("width", (data, i) => {
+          const xVal = x(currentDate);
           return xVal ? xVal : null;
         });
 
@@ -144,12 +191,47 @@ export const timeLineWindow = (
           return xVal ? xVal : null;
         })
         .attr("fill", "red")
-        .attr("y", 50)
-        .attr("height", 20)
-        .attr("width", 20)
-
         .transition()
-        .duration(500);
+        .duration(500)
+        .attr("y", 50)
+        .attr("height", (data, i) => {
+          const xVal = y("date");
+          return xVal ? xVal : null;
+        })
+        .attr("width", (data, i) => {
+          const xVal = x(currentDate);
+          return xVal ? xVal : null;
+        });
+
+      zoom.on("zoom", (event) => updateChart(event));
+
+      const updateChart = (event: any) => {
+        const newX = event.transform.rescaleX(x);
+        const newy = event.transform.rescaleY(y);
+        // console.log(newX);
+        xAxisSvg.transition().duration(500).call(xAxisCall(newX));
+        yAxisSvg.transition().duration(500).call(yAxisCall(newy));
+        // svg.attr("transform", event.transform);
+
+        rects
+          .transition()
+          .duration(500)
+          .attr("y", 50)
+          .attr("x", (data, i) => {
+            const xVal = newX(data.jsDate);
+            return xVal ? xVal : null;
+          })
+          .attr("height", (data, i) => {
+            const xVal = newy("date");
+            return xVal ? xVal : null;
+          })
+
+          .attr("width", (data, i) => {
+            const xVal = newX(currentDate);
+            return xVal ? xVal : null;
+          });
+        // const newY = event.transform.rescaleY(y);
+      };
     },
   };
 };

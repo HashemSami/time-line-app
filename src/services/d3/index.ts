@@ -30,10 +30,8 @@ export const generateBarXAxis = () => {
   return d3.axisBottom;
 };
 
-export const generateBarYAxis = (
-  yAxis: d3.ScaleLinear<number, number, never>
-) => {
-  return d3.axisLeft(yAxis);
+export const generateBarYAxis = () => {
+  return d3.axisLeft;
 };
 
 export const generateTip = () => {};
@@ -77,3 +75,5 @@ export const timeScale = (
 ) => {
   return d3.scaleTime().domain(valuesRange).range(canvasRange);
 };
+
+export const d3Zoom = () => d3.zoom<SVGRectElement, unknown>();
