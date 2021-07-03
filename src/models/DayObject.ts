@@ -1,4 +1,4 @@
-export interface DayObject {
+export interface DaysObject {
   [day: string]: {
     dayIndex: number;
     dayNumber: number;
@@ -9,9 +9,10 @@ export interface DayObject {
     year: number;
     isCurrentDay: boolean;
     isWeekend: boolean;
+    jsDate: Date;
   };
 }
 
 export interface TimelineData {
-  [year: string]: { [month: string]: DayObject };
+  [year: string]: { [month: string]: DaysObject };
 }

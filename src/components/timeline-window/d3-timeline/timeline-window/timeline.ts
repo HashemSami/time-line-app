@@ -9,6 +9,7 @@ import {
 } from "../../utils/d3Utils";
 import { ChartOptions } from "../models";
 import { TimelineData } from "../../../../models";
+import { Data } from "../../../dynamic-form/utils/dataEx";
 // import { generateValueTip } from "../../../tooltips/chartsToolTips/valueTips";
 
 export const timeLineWindow = (
@@ -26,68 +27,6 @@ export const timeLineWindow = (
   const innerWidth = width - margin.left - margin.right;
   const innerTopHeight = windowHeight - margin.top;
   const innerBottomHeight = windowHeight - margin.bottom;
-
-  const main = svg.append("g");
-  main
-    .append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .style("fill", "transparent")
-    .style("stroke", "black");
-
-  // ===============================================
-  // seeting up windows
-  const navigationWindow = main.append("g");
-  navigationWindow
-    .append("rect")
-    .attr("width", innerWidth)
-    .attr("height", innerTopHeight)
-    .attr("transform", `translate(${margin.left},${topWindowLocation})`)
-    .style("fill", "transparent")
-    .style("stroke", "black");
-
-  const chartWindow = main.append("g");
-  chartWindow
-    .append("rect")
-    .attr("width", innerWidth)
-    .attr("height", innerBottomHeight)
-    .attr("transform", `translate(${margin.left},${windowHeight})`)
-    .style("fill", "transparent")
-    .style("stroke", "black");
-
-  // ===============================================
-  // seting up charts
-  const chartHeight = 130;
-  const chartWidth = innerWidth - innerMargin.left - innerMargin.right;
-  // const navigationChart = chartWindow
-  //   .append("g")
-  //   .append("rect")
-  //   .attr("width", chartWidth)
-  //   .attr("height", chartHeight)
-  //   .attr(
-  //     "transform",
-  //     `translate(${margin.left + innerMargin.left},${
-  //       bottomWindowLocation + innerMargin.top + 30
-  //     })`
-  //   )
-  //   .style("fill", "transparent")
-  //   .style("stroke", "black");
-
-  // generates axis labels
-  const ChartTitle = navigationWindow
-    .append("text")
-    .attr("x", width / 2)
-    .attr("y", topWindowLocation + innerMargin.top)
-    .attr("text-anchor", "middle");
-  ChartTitle.text("Chart Title");
-
-  const NavChartTitle = chartWindow
-    .append("text")
-    .attr("x", width / 2)
-    .attr("y", bottomWindowLocation + innerMargin.top)
-    .attr("text-anchor", "middle");
-  // .attr("transform", "rotate(-90)");
-  NavChartTitle.text("Axis Title");
 
   const xAxisSvg = svg
     .append("g")
@@ -140,15 +79,28 @@ export const timeLineWindow = (
 
       // DATA JOIN
 
-      const daysArray = [];
+      const daysArray: {
+        dayIndex: number;
+        dayNumber: number;
+        dayValue: number;
+        dayString: string;
+        dayShortSrting: string;
+        monthName: string;
+        year: number;
+        isCurrentDay: boolean;
+        isWeekend: boolean;
+        jsDate: Date;
+      }[] = [];
 
-      const viewData = Object.keys(newData["2021"]).map((monthNum) => {
+      const viewData = Object.keys(newData["2021"]).forEach(monthNum => {
         const days = newData["2021"][monthNum];
-        return days;
+        Object.keys(days).forEach(d => {
+          daysArray.push(days[d]);
+        });
       });
 
       console.log(viewData);
-      const rects = svg.selectAll("rect").data(viewData.map((d) => d));
+      const rects = svg.selectAll("rect").data(daysArray);
       // once you set your data using the data() method, you can have access to all the data
       // and the data eteration number in inside the attributes setters as a function
       // console.log(x("Hashem"));
@@ -172,7 +124,7 @@ export const timeLineWindow = (
         .transition()
         .duration(500)
         .attr("x", (data, i) => {
-          const xVal = x(i);
+          const xVal = x(data.jsDate);
           return xVal ? xVal : null;
         });
 
@@ -188,11 +140,14 @@ export const timeLineWindow = (
           e.target.style.fill = "red";
         })
         .attr("x", (data, i) => {
-          const xVal = x(i);
+          const xVal = x(data.jsDate);
           return xVal ? xVal : null;
         })
         .attr("fill", "red")
-        .attr("y", height)
+        .attr("y", 50)
+        .attr("height", 20)
+        .attr("width", 20)
+
         .transition()
         .duration(500);
     },

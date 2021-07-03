@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 
-import { DayObject } from "../../../models";
+import { DaysObject } from "../../../models";
 
 dayjs.extend(localeData);
 
@@ -70,7 +70,7 @@ const getDaysObject = (
     // console.log(weekends);
   }
 
-  const daysObject: DayObject = {};
+  const daysObject: DaysObject = {};
 
   for (let i = 1; i <= numberOfDaysInMonth; i++) {
     const monthDay = i;

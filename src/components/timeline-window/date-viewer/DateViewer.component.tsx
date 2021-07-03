@@ -3,7 +3,7 @@ import { FC } from "react";
 import { DateViewerContainer, DateViewerContainer2 } from "./DateViewer.styles";
 
 import dayjs, { DateFunctions } from "../utils/Date";
-import { DayObject } from "../../../models";
+import { DaysObject } from "../../../models";
 
 import DateIconView from "../date-icon/DateIcon.component";
 
@@ -19,17 +19,26 @@ const DateViewer: FC<DateViewerProps> = ({ month, monthNumber, weekends }) => {
   // dateContext.setDateContextByYearNumber(2019);
   dateContext.setDateContextByMonthNumber(monthNumber);
 
-  const daysObject = dateContext.getDaysObject({ weekends: weekends ? weekends : [0, 1] });
+  const daysObject = dateContext.getDaysObject({
+    weekends: weekends ? weekends : [0, 1],
+  });
 
   console.log(daysObject);
 
-  const renderMonthDays = (daysObject: DayObject) => {
+  const renderMonthDays = (daysObject: DaysObject) => {
     const monthDaysElements = Object.keys(daysObject).map(d => {
       const dayInfo = daysObject[d];
-      const { dayValue, dayNumber, dayShortSrting, isCurrentDay, isWeekend } = dayInfo;
+      const { dayValue, dayNumber, dayShortSrting, isCurrentDay, isWeekend } =
+        dayInfo;
       return (
         <div>
-          <DateIconView key={dayValue + 500} dayShortSrting={dayShortSrting} dayNumber={dayNumber} isCurrentDay={isCurrentDay} isWeekend={isWeekend} />
+          <DateIconView
+            key={dayValue + 500}
+            dayShortSrting={dayShortSrting}
+            dayNumber={dayNumber}
+            isCurrentDay={isCurrentDay}
+            isWeekend={isWeekend}
+          />
         </div>
       );
     });

@@ -43,7 +43,7 @@ const TimelineWindow: FC<TimelineWindowProps> = ({
       Object.assign(timeLineData, {
         [`${year}`]: {
           [i]: Object.keys(daysObject).map(
-            (dateString) => daysObject[dateString]
+            dateString => daysObject[dateString]
           ),
           ...timeLineData[`${year}`],
         },
