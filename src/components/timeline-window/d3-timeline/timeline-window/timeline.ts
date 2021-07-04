@@ -41,6 +41,7 @@ export const timeLineWindow = (
 
   // Add a clipPath: everything out of this area won't be drawn.
   const clip = svg
+    .append("g")
     .append("defs")
     .append("clipPath")
     .attr("id", "clip")
@@ -62,6 +63,7 @@ export const timeLineWindow = (
 
   // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
   const zoomRect = svg
+    .append("g")
     .append("rect")
     .attr("width", width)
     .attr("height", height)
@@ -114,7 +116,6 @@ export const timeLineWindow = (
       // after adding the data to the SVG, we can save it in a variable.
 
       // DATA JOIN
-      const currentDate = new Date();
 
       const daysArray: {
         dayIndex: number;
@@ -131,9 +132,9 @@ export const timeLineWindow = (
 
       // TODO: implement one for loop to loop on the hole year
       // instead of the nested for loop here
-      Object.keys(newData["2021"]).forEach(monthNum => {
+      Object.keys(newData["2021"]).forEach((monthNum) => {
         const days = newData["2021"][monthNum];
-        Object.keys(days).forEach(d => {
+        Object.keys(days).forEach((d) => {
           daysArray.push(days[d]);
         });
       });
@@ -165,15 +166,16 @@ export const timeLineWindow = (
       rects
         .transition()
         .duration(500)
+
+        .attr("x", (data, i) => {
+          const xVal = x(data.jsDate);
+          return xVal ? xVal : null;
+        })
         .attr("y", (data, i) => {
           const xVal = y(5);
           return xVal ? xVal : null;
         })
         .attr("height", 20)
-        .attr("x", (data, i) => {
-          const xVal = x(data.jsDate);
-          return xVal ? xVal : null;
-        })
         .attr("width", (data, i) => {
           const xVal = x(maxDate) / 365;
           return xVal ? xVal : null;
@@ -207,18 +209,18 @@ export const timeLineWindow = (
           return xVal ? xVal : null;
         });
 
-      zoom.on("zoom", (event, d) => updateChart(event, d));
+      zoom.on("zoom", (event) => updateChart(event));
 
-      const updateChart = (event: any, d: any) => {
-        console.log(event);
+      const updateChart = (event: any) => {
         const newX = event.transform.rescaleX(x);
         const newy = event.transform.rescaleY(y);
-        // console.log(newy);
+        // console.log(event);
         xAxisSvg.transition().duration(500).call(xAxisCall(newX));
         yAxisSvg.transition().duration(500).call(yAxisCall(newy));
-        // svg.attr("transform", event.transform);
+        // clip.attr("transform", event.transform);
 
         rects
+          // .append("rect")
           // .attr("transform", event.transform)
           .attr("y", (data, i) => {
             const xVal = newy(5);
