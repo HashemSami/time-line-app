@@ -61,13 +61,15 @@ export const timeLineWindow = (
     ]);
 
   // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
-  svg
+  const zoomRect = svg
     .append("rect")
     .attr("width", width)
     .attr("height", height)
+    .attr("x", 0)
+    .attr("y", 0)
     .style("fill", "none")
     .style("pointer-events", "all")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoom);
 
   const rectWidth = width / 365;
@@ -85,6 +87,8 @@ export const timeLineWindow = (
       // will also do the scaling for the x values (the fields names)
 
       const x = timeScale([minDate, maxDate], [0, width]);
+      console.log(x(maxDate) / 365);
+      console.log(x.invert(200));
 
       const xAxisCall = generateBarXAxis();
       // xAxisSvg.call(xAxisCall);
@@ -95,7 +99,7 @@ export const timeLineWindow = (
       // const min = getMinValue(newData);
       // // here we will set the scale of our bar chart to fit all the data into
       // // our visulaization
-      const y = bandScale(["date", "members"], [height, 0]);
+      const y = linearScale([1, 10], [height, 0]);
 
       const yAxisCall = generateBarYAxis();
       // we need to call our yAxis generator on our svg
@@ -127,9 +131,9 @@ export const timeLineWindow = (
 
       // TODO: implement one for loop to loop on the hole year
       // instead of the nested for loop here
-      Object.keys(newData["2021"]).forEach((monthNum) => {
+      Object.keys(newData["2021"]).forEach(monthNum => {
         const days = newData["2021"][monthNum];
-        Object.keys(days).forEach((d) => {
+        Object.keys(days).forEach(d => {
           daysArray.push(days[d]);
         });
       });
@@ -161,17 +165,17 @@ export const timeLineWindow = (
       rects
         .transition()
         .duration(500)
-        .attr("y", 50)
-        .attr("height", (data, i) => {
-          const xVal = y("date");
+        .attr("y", (data, i) => {
+          const xVal = y(5);
           return xVal ? xVal : null;
         })
+        .attr("height", 20)
         .attr("x", (data, i) => {
           const xVal = x(data.jsDate);
           return xVal ? xVal : null;
         })
         .attr("width", (data, i) => {
-          const xVal = x(currentDate);
+          const xVal = x(maxDate) / 365;
           return xVal ? xVal : null;
         });
 
@@ -193,43 +197,42 @@ export const timeLineWindow = (
         .attr("fill", "red")
         .transition()
         .duration(500)
-        .attr("y", 50)
-        .attr("height", (data, i) => {
-          const xVal = y("date");
+        .attr("y", (data, i) => {
+          const xVal = y(5);
           return xVal ? xVal : null;
         })
+        .attr("height", 20)
         .attr("width", (data, i) => {
-          const xVal = x(currentDate);
+          const xVal = x(maxDate) / 365;
           return xVal ? xVal : null;
         });
 
-      zoom.on("zoom", (event) => updateChart(event));
+      zoom.on("zoom", (event, d) => updateChart(event, d));
 
-      const updateChart = (event: any) => {
+      const updateChart = (event: any, d: any) => {
+        console.log(event);
         const newX = event.transform.rescaleX(x);
         const newy = event.transform.rescaleY(y);
-        // console.log(newX);
+        // console.log(newy);
         xAxisSvg.transition().duration(500).call(xAxisCall(newX));
         yAxisSvg.transition().duration(500).call(yAxisCall(newy));
         // svg.attr("transform", event.transform);
 
         rects
-          .transition()
-          .duration(500)
-          .attr("y", 50)
+          // .attr("transform", event.transform)
+          .attr("y", (data, i) => {
+            const xVal = newy(5);
+            return xVal ? xVal : null;
+          })
           .attr("x", (data, i) => {
             const xVal = newX(data.jsDate);
             return xVal ? xVal : null;
           })
-          .attr("height", (data, i) => {
-            const xVal = newy("date");
-            return xVal ? xVal : null;
-          })
-
           .attr("width", (data, i) => {
-            const xVal = newX(currentDate);
+            const xVal = newX(maxDate) / 365;
             return xVal ? xVal : null;
           });
+
         // const newY = event.transform.rescaleY(y);
       };
     },

@@ -14,7 +14,7 @@ export const d3Timeline = (
 
   // to seperate the data visulaization fro the eadge of
   // the canvas or the svg
-  const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+  const margin = { top: 20, bottom: 50, left: 50, right: 20 };
 
   const chartOptions = {
     height: height - margin.top - margin.bottom,
