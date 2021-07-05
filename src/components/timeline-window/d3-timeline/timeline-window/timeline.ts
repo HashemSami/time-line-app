@@ -41,7 +41,6 @@ export const timeLineWindow = (
 
   // Add a clipPath: everything out of this area won't be drawn.
   const clip = svg
-    .append("g")
     .append("defs")
     .append("clipPath")
     .attr("id", "clip")
@@ -62,17 +61,6 @@ export const timeLineWindow = (
     ]);
 
   // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
-  const zoomRect = svg
-    .append("g")
-    .append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("x", 0)
-    .attr("y", 0)
-    .style("fill", "none")
-    .style("pointer-events", "all")
-    // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(zoom);
 
   const rectWidth = width / 365;
 
@@ -144,6 +132,7 @@ export const timeLineWindow = (
         .attr("clip-path", "url(#clip)")
         .selectAll("rect")
         .data(daysArray);
+
       // once you set your data using the data() method, you can have access to all the data
       // and the data eteration number in inside the attributes setters as a function
       // console.log(x("Hashem"));
@@ -166,7 +155,6 @@ export const timeLineWindow = (
       rects
         .transition()
         .duration(500)
-
         .attr("x", (data, i) => {
           const xVal = x(data.jsDate);
           return xVal ? xVal : null;
@@ -207,9 +195,24 @@ export const timeLineWindow = (
         .attr("width", (data, i) => {
           const xVal = x(maxDate) / 365;
           return xVal ? xVal : null;
-        });
+        })
+        .call(zoom);
+
+      // TODO: add on('zoom', updateChart) instead of .call(zoom)
 
       zoom.on("zoom", (event) => updateChart(event));
+
+      const zoomRect = rects
+        .append("g")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("x", 0)
+        .attr("y", 0)
+        .style("fill", "red")
+        .style("pointer-events", "all")
+        // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(zoom);
 
       const updateChart = (event: any) => {
         const newX = event.transform.rescaleX(x);
@@ -217,7 +220,8 @@ export const timeLineWindow = (
         // console.log(event);
         xAxisSvg.transition().duration(500).call(xAxisCall(newX));
         yAxisSvg.transition().duration(500).call(yAxisCall(newy));
-        // clip.attr("transform", event.transform);
+        zoomRect.attr("transform", event.transform);
+        // rects.attr("transform", event.transform);
 
         rects
           // .append("rect")
