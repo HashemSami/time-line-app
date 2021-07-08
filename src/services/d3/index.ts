@@ -76,19 +76,6 @@ export const timeScale = (
   return d3.scaleTime().domain(valuesRange).range(canvasRange);
 };
 
-export const d3Zoom = () =>
-  d3.zoom<
-    SVGRectElement,
-    {
-      dayIndex: number;
-      dayNumber: number;
-      dayValue: number;
-      dayString: string;
-      dayShortSrting: string;
-      monthName: string;
-      year: number;
-      isCurrentDay: boolean;
-      isWeekend: boolean;
-      jsDate: Date;
-    }
-  >();
+export const d3Zoom = () => d3.zoom<SVGRectElement, unknown>();
+
+// d3.timeFormat("%I %p")]

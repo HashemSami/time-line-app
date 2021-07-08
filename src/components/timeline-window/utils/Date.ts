@@ -1,9 +1,11 @@
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
+import weekOfYear from "dayjs/plugin/weekOfYear";
 
 import { DaysObject } from "../../../models";
 
 dayjs.extend(localeData);
+dayjs.extend(weekOfYear);
 
 interface DaysObjectOptions {
   weekends: number[];
@@ -68,6 +70,8 @@ const getDaysObject = (
 ) => {
   const numberOfDaysInMonth = getNumberOfDaysInMonth(dayjsContext);
   const todayContext = dayjs();
+  const currentMonthNumber = todayContext.get("month");
+  const currentWeekNumber = todayContext.week();
   let currentWeekends = [0, 1];
 
   if (options) {
@@ -84,8 +88,9 @@ const getDaysObject = (
     const weekDay = date.day();
     const monthNumber = date.get("month");
     const monthName = months[monthNumber];
+    const weekNumber = date.week();
     const year = date.get("year");
-    const jsDate = date.toDate();
+    // const jsDate = date.toDate();
 
     const dateString = `${monthNumber + 1}-${monthDay}-${year}`;
     const dayObject = {
@@ -98,9 +103,11 @@ const getDaysObject = (
         dayShortSrting: weekDaysShort[weekDay],
         monthName,
         year,
-        isCurrentDay: date.isSame(todayContext),
+        isCurrentDay: date.isSame(todayContext, "date"),
+        isCurrentMonth: monthNumber === currentMonthNumber,
+        isCurrentWeek: weekNumber === currentWeekNumber,
         isWeekend: currentWeekends.indexOf(weekDay) > -1,
-        jsDate,
+        jsDate: date.toDate(),
       },
     };
     Object.assign(daysObject, dayObject);

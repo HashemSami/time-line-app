@@ -30,8 +30,6 @@ const TimelineWindow: FC<TimelineWindowProps> = ({
   const generateYearData = () => {
     const timeLineData: TimelineData = {};
 
-    for (let i = 0; i < yearDays; i++) {}
-
     // dateContext.setDateContextByYearNumber(2019);
     const year = dateContext.getYear();
 
