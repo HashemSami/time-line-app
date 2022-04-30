@@ -12,16 +12,16 @@ import MapPage from "./Pages/map-page/MapPage.componenet";
 const App: FC = () => {
   return (
     <AppContainer className="App">
-      <Header />
       <Switch>
         <Route path="/main">
           <HomePage />
         </Route>
         <Route path="/map">
+          <Header />
           <MapPage />
+          <Footer />
         </Route>
       </Switch>
-      <Footer />
     </AppContainer>
   );
 };

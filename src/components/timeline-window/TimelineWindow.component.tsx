@@ -31,7 +31,8 @@ const TimelineWindow: FC<TimelineWindowProps> = ({
     const timeLineData: TimelineData = {};
 
     // dateContext.setDateContextByYearNumber(2019);
-    const year = dateContext.getYear();
+    // const year = dateContext.getYear();
+    const year = "2021";
 
     months.forEach((month, i) => {
       dateContext.setDateContextByMonthNumber(i);
@@ -41,7 +42,7 @@ const TimelineWindow: FC<TimelineWindowProps> = ({
       Object.assign(timeLineData, {
         [`${year}`]: {
           [i]: Object.keys(daysObject).map(
-            dateString => daysObject[dateString]
+            (dateString) => daysObject[dateString]
           ),
           ...timeLineData[`${year}`],
         },
@@ -62,6 +63,7 @@ const TimelineWindow: FC<TimelineWindowProps> = ({
     const chart = d3Timeline(chartDiv.current, width, height);
 
     const timelineWindow = chart.timeLineWindow();
+
     timelineWindow.updateData(timeLineData, [
       dateContext.getFirstDateOfTheYear(),
       dateContext.getLastDateOfTheYear(),
