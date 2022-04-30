@@ -1,16 +1,29 @@
+import { FC } from "react";
 import { AppContainer } from "./App.styles";
-import HomePage from "./Pages/home-page/HomePage.component";
+
+import { Switch, Route, Redirect } from "react-router-dom";
+
 import Header from "./components/header/Header.component";
 import Footer from "./components/footer/Footer.component";
 
-function App() {
+import HomePage from "./Pages/home-page/HomePage.component";
+import MapPage from "./Pages/map-page/MapPage.componenet";
+
+const App: FC = () => {
   return (
     <AppContainer className="App">
       <Header />
-      <HomePage />
+      <Switch>
+        <Route path="/main">
+          <HomePage />
+        </Route>
+        <Route path="/map">
+          <MapPage />
+        </Route>
+      </Switch>
       <Footer />
     </AppContainer>
   );
-}
+};
 
 export default App;

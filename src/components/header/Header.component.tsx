@@ -1,11 +1,20 @@
 import { FC } from "react";
 
-import { HeaderContainer } from "./Header.styles";
+import {
+  HeaderContainer,
+  WellsCountContainer,
+  TitleContainer,
+} from "./Header.styles";
 
 const Header: FC = () => {
   return (
     <HeaderContainer>
-      <h1>test Header</h1>
+      <TitleContainer>
+        <p>GOC Operations Activity</p>
+      </TitleContainer>
+      <WellsCountContainer>
+        <p className="title">98 Active Wells</p>
+      </WellsCountContainer>
     </HeaderContainer>
   );
 };
